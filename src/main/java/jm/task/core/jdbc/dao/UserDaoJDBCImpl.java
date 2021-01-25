@@ -15,12 +15,12 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
     private Connection connection = getConnection();
 
     @Override
-    public void createUsersTable() throws SQLException {
+    public void createUsersTable() {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement =
                     connection.prepareStatement(
-                            "CREATE TABLE `users` (" +
+                            "CREATE TABLE `mydb`.`users` (" +
                             "  `id` INT NOT NULL AUTO_INCREMENT," +
                             "  `name` VARCHAR(45) NOT NULL," +
                             "  `lastName` VARCHAR(45) NULL," +
@@ -29,38 +29,28 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
                             ") ENGINE=InnoDB DEFAULT CHARACTER SET = utf8");
 
             preparedStatement.execute();
-        } catch (SQLException | NullPointerException e){
-            e.printStackTrace();
+        } catch (SQLException e){
+            System.err.println("Table is not created");
         } finally {
-            if(preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if(connection != null){
-                connection.close();
-            }
+            close(preparedStatement);
         }
     }
 
     @Override
-    public void dropUsersTable() throws SQLException {
+    public void dropUsersTable() {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = connection.prepareStatement("DROP TABLE IF EXISTS users");
             preparedStatement.execute();
         } catch (SQLException e){
-            e.printStackTrace();
+            System.err.println("Table is not dropped");
         } finally {
-            if(preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if(connection != null){
-                connection.close();
-            }
+            close(preparedStatement);
         }
     }
 
     @Override
-    public void saveUser(String name, String lastName, byte age) throws SQLException {
+    public void saveUser(String name, String lastName, byte age) {
         PreparedStatement preparedStatement = null;
         String sql = "INSERT INTO users (name, lastName, age)  VALUES(?, ?, ?)";
 
@@ -75,17 +65,12 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
         } catch (SQLException e){
             e.printStackTrace();
         } finally {
-            if(preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if(connection != null){
-                connection.close();
-            }
+            close(preparedStatement);
         }
     }
 
     @Override
-    public void removeUserById(long id) throws SQLException {
+    public void removeUserById(long id) {
         PreparedStatement preparedStatement = null;
         String sql = "DELETE FROM 'users' WHERE id=?";
         try {
@@ -95,17 +80,12 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
         } catch (SQLException e){
             e.printStackTrace();
         } finally {
-            if(preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if(connection != null){
-                connection.close();
-            }
+            close(preparedStatement);
         }
     }
 
     @Override
-    public List<User> getAllUsers() throws SQLException {
+    public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
         String sql = "SELECT * FROM users";
         Statement statement = null;
@@ -124,19 +104,31 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
         } catch (SQLException e){
             e.printStackTrace();
         } finally {
-            if(statement != null) {
-                statement.close();
-            }
-            if(connection != null){
-                connection.close();
-            }
+            close(statement);
         }
         return userList;
     }
 
     @Override
-    public void cleanUsersTable() throws SQLException {
+    public void cleanUsersTable() {
         dropUsersTable();
         createUsersTable();
+    }
+
+    private void close(Statement preparedStatement){
+        if(preparedStatement != null) {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if(connection != null){
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
