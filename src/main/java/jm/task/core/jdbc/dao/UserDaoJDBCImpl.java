@@ -30,7 +30,7 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
 
             preparedStatement.execute();
         } catch (SQLException e){
-            System.err.println("Table is not created");
+            System.out.println("Table is not created or already exists");
         } finally {
             close(preparedStatement);
         }
@@ -43,7 +43,7 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
             preparedStatement = connection.prepareStatement("DROP TABLE IF EXISTS users");
             preparedStatement.execute();
         } catch (SQLException e){
-            System.err.println("Table is not dropped");
+            System.err.println("Table is not dropped or doesnt exist");
         } finally {
             close(preparedStatement);
         }
@@ -112,8 +112,15 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        dropUsersTable();
-        createUsersTable();
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement("TRUNCATE TABLE users");
+            preparedStatement.execute();
+        } catch (SQLException e){
+            System.err.println("Data deletion error");
+        } finally {
+            close(preparedStatement);
+        }
     }
 
     private void close(Statement preparedStatement){
