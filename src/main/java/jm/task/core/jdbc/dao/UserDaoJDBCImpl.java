@@ -72,7 +72,7 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
     @Override
     public void removeUserById(long id) {
         PreparedStatement preparedStatement = null;
-        String sql = "DELETE FROM 'users' WHERE id=?";
+        String sql = "DELETE FROM users WHERE id=?";
         try {
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setLong(1, id);
@@ -100,6 +100,7 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
                 user.setName(resultSet.getString("name"));
                 user.setLastName(resultSet.getString("lastName"));
                 user.setAge(resultSet.getByte("age"));
+                userList.add(user);
             }
         } catch (SQLException e){
             e.printStackTrace();
